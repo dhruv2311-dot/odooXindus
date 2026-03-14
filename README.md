@@ -1,55 +1,160 @@
 # CoreInventory
 
-CoreInventory is a full inventory operations platform for products, receipts, deliveries, stock tracking, warehouse/location management, and authenticated staff workflows.
+CoreInventory is an enterprise-ready inventory operations platform for managing product movement, inbound receipts, outbound deliveries, stock accuracy, and warehouse/location controls in one centralized system.
 
-## What Is New (Recent Updates)
+## Executive Summary
+- Role-based inventory workflows for daily operations.
+- Supabase-backed authentication and data storage.
+- Professional React frontend with global loading experience.
+- Secure custom OTP password reset over SMTP.
+- Real-time aware data synchronization patterns.
 
-The README has been updated to reflect the latest implementation in this codebase.
+## Product Highlights
+- Employee login ID authentication model.
+- Signup with confirmation-email flow.
+- Custom OTP forgot-password flow with cooldown, expiry, and attempt limits.
+- Dashboard KPIs with movement trend visualization.
+- Product lifecycle management.
+- Receipt validation workflow that updates stock.
+- Delivery validation workflow that deducts stock.
+- Stock transfer and movement history tracking.
+- Warehouse and location administration.
+- Protected routes and centralized app layout.
+- Session-first branded splash and global activity loaders.
 
-### Authentication and Security
-- Added robust signup validation and duplicate detection for `login_id` and `email`.
-- Added clearer backend error mapping for auth failures (duplicate user, rate limit, confirmation email failure).
-- Added `Retry-After` based handling in API responses for rate-limited flows.
-- Added custom forgot-password OTP workflow (request + confirm endpoints).
-- OTP is now generated server-side, hashed in memory, expiry/cooldown protected, and attempts-limited.
-- Password reset confirmation updates both Supabase Auth password and local `users` table hash.
+## Architecture
 
-### Email and OTP Delivery
-- Integrated backend SMTP mailer using Nodemailer.
-- Added Gmail App Password compatible configuration (spaces are sanitized in SMTP pass).
-- Added OTP email template delivery from backend mailer.
+### Frontend
+- React + Vite SPA.
+- React Router for route-level composition.
+- React Query for async data and cache invalidation.
+- Zustand for auth session state.
+- Tailwind CSS v4 theme-driven UI.
+- Recharts for dashboard analytics.
 
-### Frontend UX and Loading Improvements
-- Added professional global loading system:
-  - Full-screen branded splash loader on app boot.
-  - Route transition loader.
-  - Global API/network activity loader with top progress indicator.
-- Splash now appears only on first visit per browser session.
-- Added request activity signaling from API service to drive global loading state.
+### Backend
+- Node.js + Express REST API.
+- Supabase JS SDK for auth and database operations.
+- JWT issuance for app authorization context.
+- Nodemailer SMTP integration for custom OTP delivery.
 
-### Routing and Screen Flow
-- Added `Forgot Password` page flow with OTP request and OTP verification/reset.
-- Added `Reset Password` page route support in the app router.
-- Added `Profile` route in protected app routes.
+### Data Layer
+- Supabase Postgres for domain entities.
+- Users table synchronized with auth identities.
+- Domain tables for products, stock, receipts, deliveries, and movements.
 
-### Stability and Runtime Fixes
-- Fixed potential Zustand selector rerender loop issues.
-- Improved chart container sizing to avoid zero/negative size chart rendering warnings.
-- Improved frontend error display behavior for auth API responses.
+## Feature Inventory
 
-## Tech Stack
-- Frontend: React + Vite + React Router + React Query + Tailwind CSS
-- Backend: Node.js + Express
-- Auth/Database: Supabase
-- Email (custom OTP): Nodemailer + SMTP (Gmail App Password supported)
+### Authentication and Account Security
+- Login with `login_id` + password.
+- Signup request validation and duplicate checks for `login_id` and `email`.
+- Email-confirmation based signup response handling.
+- Custom forgot-password OTP request endpoint.
+- OTP hashing before in-memory storage.
+- OTP expiry window controls.
+- OTP resend cooldown controls.
+- Maximum invalid OTP attempt controls.
+- Password reset confirmation endpoint with strong password policy.
+- Auth password update through Supabase admin API.
+- Local users table password hash synchronization.
 
-## Minimum Requirements
-- Node.js (v18+)
+### Core Inventory Operations
+- Product create, list, update, delete.
+- Receipt create/list/detail/validate.
+- Delivery create/list/detail/validate.
+- Stock listing and adjustment workflows.
+- Stock transfer execution.
+- Move history visibility and tracking.
+
+### Master Data and Admin
+- Warehouse management APIs and screens.
+- Location management APIs and screens.
+- Admin-aware navigation rendering.
+
+### UX and Frontend Experience
+- Branded full-screen startup loader.
+- Route transition loader bar and status chip.
+- Global request activity loader from centralized API layer.
+- Session-based splash behavior (first visit only).
+- Responsive dashboard and management screens.
+
+### Reliability and Runtime Quality
+- API-level standardized error object handling.
+- `Retry-After` aware client logic for rate-limited responses.
+- Zustand selector stabilization to avoid render-loop regressions.
+- Chart container sizing hardening for reliable rendering.
+
+## API Surface
+
+### Authentication Endpoints
+- `POST /auth/signup`
+- `POST /auth/login`
+- `POST /auth/reset-password`
+- `POST /auth/reset-password/request`
+- `POST /auth/reset-password/confirm`
+
+### Domain Endpoint Groups
+- `/products`
+- `/receipts`
+- `/deliveries`
+- `/stock`
+- `/warehouses`
+- `/locations`
+
+## Technology Stack
+- Frontend: React, Vite, React Router, React Query, Zustand, Tailwind CSS v4
+- Backend: Node.js, Express
+- Auth and DB: Supabase
+- Mail: Nodemailer + SMTP (Gmail App Password supported)
+
+## Libraries (Exact)
+
+### Frontend Runtime Dependencies
+- `@supabase/supabase-js`
+- `@tailwindcss/vite`
+- `@tanstack/react-query`
+- `@tanstack/react-table`
+- `clsx`
+- `lucide-react`
+- `papaparse`
+- `react`
+- `react-countup`
+- `react-dom`
+- `react-is`
+- `react-router-dom`
+- `recharts`
+- `tailwind-merge`
+- `tailwindcss`
+- `tailwindcss-animate`
+- `zustand`
+
+### Frontend Dev Dependencies
+- `@eslint/js`
+- `@types/react`
+- `@types/react-dom`
+- `@vitejs/plugin-react`
+- `eslint`
+- `eslint-plugin-react-hooks`
+- `eslint-plugin-react-refresh`
+- `globals`
+- `vite`
+
+### Backend Dependencies
+- `@supabase/supabase-js`
+- `bcryptjs`
+- `cors`
+- `dotenv`
+- `express`
+- `jsonwebtoken`
+- `nodemailer`
+
+## Prerequisites
+- Node.js 18 or newer
 - Supabase project
 
-## Environment Variables
+## Environment Configuration
 
-### Backend (`server/.env`)
+### Backend Environment (`server/.env`)
 ```dotenv
 PORT=5000
 JWT_SECRET=replace_with_strong_secret
@@ -72,18 +177,17 @@ PASSWORD_RESET_OTP_COOLDOWN_SECONDS=60
 PASSWORD_RESET_OTP_MAX_ATTEMPTS=5
 ```
 
-### Frontend (`frontend/.env`)
+### Frontend Environment (`frontend/.env`)
 ```dotenv
 VITE_API_URL=http://localhost:5000
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_KEY=your_supabase_anon_key
 ```
 
-## Setup and Run
+## Local Development
 
-### 1) Install dependencies
+### Install Dependencies
 ```bash
-# from repo root
 cd frontend
 npm install
 
@@ -91,42 +195,25 @@ cd ../server
 npm install
 ```
 
-### 2) Start backend
+### Run Backend
 ```bash
 cd server
 npm run dev
 ```
 
-### 3) Start frontend
+### Run Frontend
 ```bash
 cd frontend
 npm run dev
 ```
 
-## Auth Endpoints (Current)
-- `POST /auth/signup`
-- `POST /auth/login`
-- `POST /auth/reset-password`
-- `POST /auth/reset-password/request`
-- `POST /auth/reset-password/confirm`
+### Build Frontend
+```bash
+cd frontend
+npm run build
+```
 
-## Main Application Features
-- Login/signup with employee login ID workflow
-- Email confirmation based signup (Supabase)
-- Custom OTP based forgot-password reset flow (SMTP)
-- Dashboard KPIs and trend chart
-- Product management
-- Receipt workflows (draft to done)
-- Delivery workflows (draft to done)
-- Stock update and transfer
-- Move history tracking
-- Warehouse and location management
-- Protected routes with centralized layout
-- Realtime-aware frontend data sync behavior
-
-## Database Schema (Supabase)
-
-Use the following baseline tables if setting up from scratch:
+## Baseline Supabase Schema
 
 ```sql
 CREATE TABLE users (
@@ -209,7 +296,7 @@ CREATE TABLE stock_moves (
 );
 ```
 
-## Notes
-- For custom OTP delivery, backend SMTP must be valid.
-- Signup confirmation email still depends on Supabase Authentication email delivery settings.
-- If using Gmail SMTP, use a Gmail App Password, not your normal account password.
+## Operational Notes
+- Custom OTP delivery depends on valid backend SMTP credentials.
+- Signup confirmation mail behavior depends on Supabase Authentication email settings.
+- For Gmail SMTP, always use an App Password and never your normal account password.

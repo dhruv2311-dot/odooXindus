@@ -1,6 +1,8 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import Layout from './components/Layout';
+import { ActivityLoader, FullScreenLoader } from './components/GlobalLoader';
 
 // Pages
 import Login from './pages/Login';
@@ -25,9 +27,58 @@ const ProtectedRoute = ({ children }) => {
   return <Layout>{children}</Layout>;
 };
 
-function App() {
+function AppRoutes() {
+  const location = useLocation();
+  const [isBootLoading, setIsBootLoading] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return !window.sessionStorage.getItem('app_boot_loaded');
+  });
+  const [isRouteLoading, setIsRouteLoading] = useState(false);
+  const [isNetworkLoading, setIsNetworkLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isBootLoading) return undefined;
+
+    const bootTimer = setTimeout(() => {
+      setIsBootLoading(false);
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.setItem('app_boot_loaded', '1');
+      }
+    }, 850);
+
+    return () => clearTimeout(bootTimer);
+  }, [isBootLoading]);
+
+  useEffect(() => {
+    if (isBootLoading) return undefined;
+
+    setIsRouteLoading(true);
+    const routeTimer = setTimeout(() => {
+      setIsRouteLoading(false);
+    }, 320);
+
+    return () => clearTimeout(routeTimer);
+  }, [location.pathname, isBootLoading]);
+
+  useEffect(() => {
+    const handleNetworkLoading = (event) => {
+      const activeRequests = Number(event.detail?.activeRequests || 0);
+      setIsNetworkLoading(activeRequests > 0);
+    };
+
+    window.addEventListener('app:network-loading', handleNetworkLoading);
+    return () => {
+      window.removeEventListener('app:network-loading', handleNetworkLoading);
+    };
+  }, []);
+
   return (
-    <Router>
+    <>
+      <FullScreenLoader visible={isBootLoading} label="Preparing your workspace" />
+      <ActivityLoader
+        visible={!isBootLoading && (isRouteLoading || isNetworkLoading)}
+        label={isRouteLoading ? 'Opening page' : 'Syncing data'}
+      />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -46,6 +97,14 @@ function App() {
         <Route path="/warehouse" element={<ProtectedRoute><Warehouse /></ProtectedRoute>} />
         <Route path="/locations" element={<ProtectedRoute><Locations /></ProtectedRoute>} />
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppRoutes />
     </Router>
   );
 }

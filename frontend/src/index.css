@@ -25,6 +25,19 @@
   }
 }
 
+@keyframes activity-slide {
+  0% {
+    transform: translateX(-130%);
+  }
+  100% {
+    transform: translateX(380%);
+  }
+}
+
+.activity-loader-bar {
+  animation: activity-slide 1.05s ease-in-out infinite;
+}
+
 /* Base Form Inputs */
 @layer components {
   .theme-input {

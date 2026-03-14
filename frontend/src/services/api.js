@@ -1,4 +1,14 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+let activeRequests = 0;
+
+const emitNetworkLoading = () => {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(
+    new CustomEvent('app:network-loading', {
+      detail: { activeRequests }
+    })
+  );
+};
 
 export const getHeaders = () => {
   const token = localStorage.getItem('token');
@@ -14,25 +24,33 @@ export const apiCall = async (endpoint, method = 'GET', body = null) => {
     headers: getHeaders(),
     ...(body && { body: JSON.stringify(body) })
   };
-  
-  const response = await fetch(`${API_URL}${endpoint}`, options);
-  
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'API Error' }));
-    const apiError = new Error(error.message || error.error || 'API Error');
-    apiError.status = response.status;
-    const retryAfter = response.headers.get('Retry-After');
-    if (retryAfter) {
-      const parsedRetryAfter = Number(retryAfter);
-      apiError.retryAfter = Number.isNaN(parsedRetryAfter) ? undefined : parsedRetryAfter;
+
+  activeRequests += 1;
+  emitNetworkLoading();
+
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, options);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'API Error' }));
+      const apiError = new Error(error.message || error.error || 'API Error');
+      apiError.status = response.status;
+      const retryAfter = response.headers.get('Retry-After');
+      if (retryAfter) {
+        const parsedRetryAfter = Number(retryAfter);
+        apiError.retryAfter = Number.isNaN(parsedRetryAfter) ? undefined : parsedRetryAfter;
+      }
+      throw apiError;
     }
-    throw apiError;
+
+    // For 204 No Content
+    if (response.status === 204) return null;
+
+    return response.json();
+  } finally {
+    activeRequests = Math.max(0, activeRequests - 1);
+    emitNetworkLoading();
   }
-  
-  // For 204 No Content
-  if (response.status === 204) return null;
-  
-  return response.json();
 };
 
 export const authApi = {

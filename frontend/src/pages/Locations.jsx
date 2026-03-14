@@ -92,6 +92,7 @@ export default function Locations() {
                   value={formData.short_code}
                   onChange={e => setFormData({ ...formData, short_code: e.target.value })}
                   className="theme-input w-full uppercase"
+                  placeholder="e.g. RACK-A1"
                 />
               </div>
 

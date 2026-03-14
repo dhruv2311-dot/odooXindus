@@ -75,6 +75,7 @@ export default function Warehouse() {
                   value={formData.name}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
                   className="theme-input w-full"
+                  placeholder="e.g. Ahmedabad Central Warehouse"
                 />
               </div>
               
@@ -86,6 +87,7 @@ export default function Warehouse() {
                   value={formData.code}
                   onChange={e => setFormData({ ...formData, code: e.target.value })}
                   className="theme-input w-full uppercase"
+                  placeholder="e.g. WH-AHD-01"
                 />
               </div>
 
@@ -97,6 +99,7 @@ export default function Warehouse() {
                   value={formData.address}
                   onChange={e => setFormData({ ...formData, address: e.target.value })}
                   className="theme-input w-full"
+                  placeholder="e.g. SG Highway, Ahmedabad"
                 />
               </div>
               

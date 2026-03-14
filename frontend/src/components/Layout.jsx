@@ -1,7 +1,10 @@
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
+import { useRealtimeSync } from '../hooks/useRealtimeSync';
 
 export default function Layout({ children }) {
+  useRealtimeSync();
+
   return (
     <div className="flex bg-primary min-h-screen text-white font-inter">
       <Sidebar />

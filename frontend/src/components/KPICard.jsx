@@ -1,5 +1,33 @@
-import CountUp from 'react-countup';
+import { useState, useEffect } from 'react';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+
+function AnimatedNumber({ end, duration = 1500 }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let startTime = null;
+    let animationFrame;
+
+    const updateCount = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const progress = timestamp - startTime;
+      const percentage = Math.min(progress / duration, 1);
+      
+      // easeOutExpo
+      const easing = percentage === 1 ? 1 : 1 - Math.pow(2, -10 * percentage);
+      setCount(Math.floor(end * easing));
+
+      if (percentage < 1) {
+        animationFrame = requestAnimationFrame(updateCount);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(updateCount);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [end, duration]);
+
+  return <>{count.toLocaleString()}</>;
+}
 
 export default function KPICard({ title, value, previousValue, icon: Icon, isPositive, percentageString }) {
   return (
@@ -8,7 +36,7 @@ export default function KPICard({ title, value, previousValue, icon: Icon, isPos
         <div>
           <p className="text-sm font-medium text-gray-400 font-poppins">{title}</p>
           <h3 className="text-3xl font-bold mt-2 text-white/90 group-hover:text-accent transition-colors duration-200">
-            <CountUp end={value} duration={2} separator="," />
+            <AnimatedNumber end={value || 0} />
           </h3>
         </div>
         <div className="p-3 bg-secondary rounded-lg border border-white/5 shadow-inner">

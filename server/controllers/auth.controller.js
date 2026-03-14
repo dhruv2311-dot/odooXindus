@@ -13,7 +13,7 @@ export const signup = async (req, res) => {
       .from('users')
       .select('id')
       .or(`login_id.eq.${login_id},email.eq.${email}`)
-      .single();
+      .maybeSingle();
       
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });

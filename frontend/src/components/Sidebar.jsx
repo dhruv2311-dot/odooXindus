@@ -8,19 +8,21 @@ import {
   History, 
   Building2, 
   MapPin,
-  LogOut
+  LogOut,
+  ArrowRightLeft
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 export default function Sidebar() {
   const location = useLocation();
-  const logout = useAuthStore((state) => state.logout);
+  const { logout, isAdmin } = useAuthStore((state) => ({ logout: state.logout, isAdmin: state.isAdmin }));
 
   const navItems = [
     { name: 'Dashboard', path: '/', icon: BarChart3 },
     { name: 'Products', path: '/products', icon: Package },
     { name: 'Receipts', path: '/receipts', icon: ArrowDownToLine },
     { name: 'Deliveries', path: '/deliveries', icon: ArrowUpFromLine },
+    { name: 'Transfers', path: '/transfers', icon: ArrowRightLeft },
     { name: 'Stock', path: '/stock', icon: RefreshCw },
     { name: 'Move History', path: '/move-history', icon: History },
   ];
@@ -72,14 +74,16 @@ export default function Sidebar() {
           </nav>
         </div>
 
-        <div>
-          <div className="px-6 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-            Settings
+        {isAdmin && (
+          <div>
+            <div className="px-6 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Settings
+            </div>
+            <nav className="space-y-1">
+              {settingsItems.map((item) => <NavLink key={item.name} item={item} />)}
+            </nav>
           </div>
-          <nav className="space-y-1">
-            {settingsItems.map((item) => <NavLink key={item.name} item={item} />)}
-          </nav>
-        </div>
+        )}
       </div>
 
       <div className="p-4 border-t border-white/5">

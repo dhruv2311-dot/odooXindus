@@ -12,15 +12,96 @@
   --color-warning: #F59E0B;
   --color-danger: #EF4444;
   --color-background: #0B1026;
+  --color-foreground: #FFFFFF;
+  --color-muted: #9CA3AF;
   
   --font-inter: 'Inter', sans-serif;
   --font-poppins: 'Poppins', sans-serif;
 }
 
+/* Light theme variable overrides — applied when html[data-theme="light"] */
+[data-theme="light"] {
+  --color-primary: #F0F4F8;
+  --color-secondary: #E8EDF5;
+  --color-card: #FFFFFF;
+  --color-sidebar: #F5F7FB;
+  --color-background: #F0F4F8;
+  --color-foreground: #0F172A;
+  --color-muted: #64748B;
+}
+
+/* ── Light mode: text color overrides ─────────────────────────────── */
+
+/* Hardcoded white → near-black */
+[data-theme="light"] .text-white {
+  color: #0F172A;
+}
+
+/* Very light grays (100–300), nearly invisible on white → dark ink color */
+[data-theme="light"] .text-gray-100,
+[data-theme="light"] .text-gray-200,
+[data-theme="light"] .text-gray-300,
+[data-theme="light"] .text-slate-100,
+[data-theme="light"] .text-slate-200,
+[data-theme="light"] .text-slate-300,
+[data-theme="light"] .text-zinc-100,
+[data-theme="light"] .text-zinc-200,
+[data-theme="light"] .text-zinc-300 {
+  color: #1E293B;
+}
+
+/* Mid grays (400) → readable medium dark */
+[data-theme="light"] .text-gray-400,
+[data-theme="light"] .text-slate-400,
+[data-theme="light"] .text-zinc-400 {
+  color: #475569;
+}
+
+/* Muted grays (500+) → softer but still readable */
+[data-theme="light"] .text-gray-500,
+[data-theme="light"] .text-slate-500,
+[data-theme="light"] .text-zinc-500 {
+  color: #64748B;
+}
+
+/* Hover text-white → hover near-black */
+[data-theme="light"] .hover\:text-white:hover {
+  color: #0F172A;
+}
+
+/* Borders */
+[data-theme="light"] .border-white\/5 {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+[data-theme="light"] .border-dashed.border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+/* Backgrounds */
+[data-theme="light"] .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+[data-theme="light"] .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+[data-theme="light"] .hover\:bg-white\/5:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Placeholders */
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder,
+[data-theme="light"] .placeholder-gray-400::placeholder {
+  color: #94A3B8;
+}
+
 @layer base {
   body {
     background-color: var(--color-primary);
-    color: #FFFFFF;
+    color: var(--color-foreground);
     font-family: var(--font-inter);
   }
 }
@@ -41,7 +122,7 @@
 /* Base Form Inputs */
 @layer components {
   .theme-input {
-    @apply bg-secondary border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200;
+    @apply bg-secondary border border-slate-600 rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200;
   }
   
   .btn-primary {
@@ -60,3 +141,73 @@
     @apply bg-card rounded-xl p-5 shadow-lg hover:scale-[1.02] transition-all duration-200 border border-white/5;
   }
 }
+
+/* Light mode: fix border on theme-card and slate inputs */
+[data-theme="light"] .theme-card {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .border-slate-600,
+[data-theme="light"] .border-slate-700,
+[data-theme="light"] .border-slate-800 {
+  border-color: #CBD5E1;
+}
+[data-theme="light"] .bg-slate-700\/50,
+[data-theme="light"] .bg-slate-800,
+[data-theme="light"] .bg-slate-900 {
+  background-color: var(--color-card);
+}
+
+/* Inline hardcoded dark bg used in table headers → light surface */
+[data-theme="light"] [class*="bg-\\[\\#141B3A\\]"],
+[data-theme="light"] [class*="bg-\\[\\#1C2452\\]"],
+[data-theme="light"] [class*="bg-\\[\\#12193A\\]"],
+[data-theme="light"] [class*="bg-\\[\\#232C63\\]"] {
+  background-color: #E2E8F0;
+  color: #1E293B;
+}
+
+/* ── Light mode: hover background overrides ───────────────────────── */
+
+/* Table/card rows with hardcoded dark-blue hover → soft light hover */
+[data-theme="light"] .hover\:bg-\[\#232C63\]:hover {
+  background-color: #E8EDF5;
+}
+[data-theme="light"] .hover\:bg-\[\#2A3477\]:hover {
+  background-color: #DDE3F0;
+}
+
+/* Navbar search dropdown hover */
+[data-theme="light"] .hover\:bg-primary\/60:hover {
+  background-color: rgba(15, 23, 42, 0.06);
+}
+
+/* ── Light mode: group-hover text overrides ──────────────────────── */
+
+/* Table cell text on row hover: group-hover:text-white → stay dark */
+[data-theme="light"] .group:hover .group-hover\:text-white {
+  color: #0F172A;
+}
+
+/* ── Light mode: text-white opacity variants ─────────────────────── */
+
+/* KPICard numbers and other text-white/xx usages */
+[data-theme="light"] .text-white\/90,
+[data-theme="light"] .text-white\/80,
+[data-theme="light"] .text-white\/70,
+[data-theme="light"] .text-white\/60,
+[data-theme="light"] .text-white\/50 {
+  color: #0F172A;
+}
+
+/* ── Light mode: hardcoded dark button backgrounds ───────────────── */
+
+/* Add-product / add-line buttons with always-dark bg */
+[data-theme="light"] .bg-\[\#232C63\] {
+  background-color: #E2E8F0;
+  color: #1E293B;
+}
+[data-theme="light"] .bg-\[\#232C63\]:hover,
+[data-theme="light"] .hover\:bg-\[\#2A3477\].bg-\[\#232C63\]:hover {
+  background-color: #CBD5E1;
+}
+

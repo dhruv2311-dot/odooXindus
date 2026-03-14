@@ -12,6 +12,23 @@ import { receiptsApi, deliveriesApi, stockApi } from '../services/api';
 export default function Profile() {
   const navigate = useNavigate();
   const { user, isAdmin, logout } = useAuthStore();
+  const activeRole = user?.role || (isAdmin ? 'Inventory Manager' : 'Warehouse Staff');
+  const roleDescription = activeRole === 'Inventory Manager'
+    ? 'Responsible for stock visibility, product governance, deliveries, and receipt control.'
+    : 'Responsible for receiving goods, transfers, picking, shelving, and physical counting.';
+  const roleTimeline = activeRole === 'Inventory Manager'
+    ? [
+        { phase: '1. Plan & Govern', detail: 'Define product records, monitor stock levels, and decide replenishment priorities.' },
+        { phase: '2. Oversee Inbound', detail: 'Review incoming receipts and confirm they are ready to affect stock.' },
+        { phase: '3. Control Outbound', detail: 'Track deliveries, dispatch readiness, and order completion across the warehouse.' },
+        { phase: '4. Reconcile', detail: 'Review stock corrections, movement trends, and operational exceptions.' },
+      ]
+    : [
+        { phase: '1. Receive', detail: 'Unload and record incoming goods against receipts.' },
+        { phase: '2. Shelf & Transfer', detail: 'Place items in the right locations and move stock between bins when needed.' },
+        { phase: '3. Pick & Dispatch', detail: 'Pick delivery items and prepare them for outbound completion.' },
+        { phase: '4. Count', detail: 'Perform cycle counts and support inventory correction workflows.' },
+      ];
 
   const [isEditingName, setIsEditingName] = useState(false);
   const [displayName, setDisplayName] = useState(user?.name || user?.login_id || 'User');
@@ -168,8 +185,9 @@ export default function Profile() {
                 ? 'bg-accent/15 text-accent border-accent/30'
                 : 'bg-accentblue/15 text-accentblue border-accentblue/30'
             }`}>
-              {isAdmin ? 'Inventory Manager' : 'Warehouse Staff'}
+              {activeRole}
             </span>
+            <p className="text-xs text-muted leading-relaxed">{roleDescription}</p>
 
             {/* Account details */}
             <div className="w-full space-y-3 pt-2 border-t border-white/5">
@@ -186,7 +204,7 @@ export default function Profile() {
               <div className="flex items-center gap-3 text-sm">
                 <Shield className="w-4 h-4 text-muted shrink-0" />
                 <span className="text-muted">Access</span>
-                <span className="ml-auto font-medium text-foreground text-xs">{isAdmin ? 'Admin' : 'Staff'}</span>
+                <span className="ml-auto font-medium text-foreground text-xs">{activeRole}</span>
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <Calendar className="w-4 h-4 text-muted shrink-0" />
@@ -247,6 +265,24 @@ export default function Profile() {
                   </div>
                 );
               })}
+            </div>
+          </div>
+
+          <div className="bg-card border border-white/5 rounded-xl overflow-hidden">
+            <div className="px-5 py-4 border-b border-white/5">
+              <h3 className="text-sm font-semibold text-foreground">Operational Timeline For {activeRole}</h3>
+              <p className="text-xs text-muted mt-1">This outlines how your role participates in the daily inventory flow.</p>
+            </div>
+            <div className="p-5 space-y-4">
+              {roleTimeline.map((step) => (
+                <div key={step.phase} className="flex gap-4 items-start">
+                  <div className={`mt-1 h-3 w-3 rounded-full ${isAdmin ? 'bg-accent' : 'bg-accentblue'}`}></div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{step.phase}</p>
+                    <p className="text-sm text-muted mt-1">{step.detail}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

@@ -4,10 +4,15 @@ import { useAuthStore } from '../store/authStore';
 import { authApi } from '../services/api';
 
 export default function Signup() {
-  const [formData, setFormData] = useState({ loginId: '', email: '', password: '', confirmPassword: '' });
+  const [formData, setFormData] = useState({ loginId: '', email: '', password: '', confirmPassword: '', role: 'Warehouse Staff' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const roleCopy = {
+    'Inventory Manager': 'Manages stock levels, product records, receipts, and deliveries.',
+    'Warehouse Staff': 'Handles receiving, transfers, picking, shelving, and inventory counts.',
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -43,7 +48,8 @@ export default function Signup() {
       await authApi.signup({
         login_id: formData.loginId,
         email: formData.email,
-        password: formData.password
+        password: formData.password,
+        role: formData.role,
       });
       navigate('/login');
     } catch (err) {
@@ -105,6 +111,20 @@ export default function Signup() {
               className="theme-input w-full"
               placeholder="you@company.com"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1.5">Primary Role</label>
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className="theme-input w-full"
+            >
+              <option value="Warehouse Staff">Warehouse Staff</option>
+              <option value="Inventory Manager">Inventory Manager</option>
+            </select>
+            <p className="text-xs text-gray-400 mt-2">{roleCopy[formData.role]}</p>
           </div>
 
           <div>

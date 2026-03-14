@@ -21,6 +21,11 @@ export const apiCall = async (endpoint, method = 'GET', body = null) => {
     const error = await response.json().catch(() => ({ message: 'API Error' }));
     const apiError = new Error(error.message || error.error || 'API Error');
     apiError.status = response.status;
+    const retryAfter = response.headers.get('Retry-After');
+    if (retryAfter) {
+      const parsedRetryAfter = Number(retryAfter);
+      apiError.retryAfter = Number.isNaN(parsedRetryAfter) ? undefined : parsedRetryAfter;
+    }
     throw apiError;
   }
   

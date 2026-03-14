@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { authApi } from '../services/api';
 
@@ -7,20 +7,45 @@ export default function ForgotPassword() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const inFlightRef = useRef(false);
+
+  useEffect(() => {
+    if (cooldownSeconds <= 0) return undefined;
+
+    const timer = setInterval(() => {
+      setCooldownSeconds((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [cooldownSeconds]);
 
   const requestResetLink = async (e) => {
     e.preventDefault();
+
+    if (loading || inFlightRef.current || cooldownSeconds > 0) {
+      return;
+    }
+
     setError('');
     setMessage('');
     setLoading(true);
+    inFlightRef.current = true;
 
     try {
       const response = await authApi.requestPasswordReset({ email });
       setMessage(response.message || 'Password reset link sent to your registered email.');
     } catch (err) {
-      setError(err.message || 'Could not send reset link');
+      if (err?.status === 429) {
+        const waitSeconds = err?.retryAfter || 60;
+        setCooldownSeconds(waitSeconds);
+        setError(`Email rate-limited by Supabase. Please wait ${waitSeconds} seconds before retrying.`);
+      } else {
+        setError(err.message || 'Could not send reset link');
+      }
     } finally {
       setLoading(false);
+      inFlightRef.current = false;
     }
   };
 
@@ -64,10 +89,14 @@ export default function ForgotPassword() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || cooldownSeconds > 0}
             className="w-full btn-primary py-3 text-sm font-semibold"
           >
-            {loading ? 'Sending Link...' : 'Send Reset Link'}
+            {loading
+              ? 'Sending Link...'
+              : cooldownSeconds > 0
+              ? `Retry in ${cooldownSeconds}s`
+              : 'Send Reset Link'}
           </button>
         </form>
 

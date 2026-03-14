@@ -149,32 +149,31 @@ export const requestPasswordResetOtp = async (req, res) => {
       return res.status(400).json({ message: 'email is required' });
     }
 
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', email)
-      .maybeSingle();
-
-    if (userError) {
-      throw userError;
-    }
-
-    // Avoid creating auth users from forgot-password flow.
-    if (!user) {
-      return res.status(404).json({ message: 'No account found for this email' });
-    }
-
+    const normalizedEmail = String(email).trim().toLowerCase();
     const redirectTo = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password`;
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    let { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, { redirectTo });
+
+    // If redirect URL isn't allow-listed in Supabase, retry with default project Site URL.
+    if (error && /redirect|redirect_to|not allowed|invalid/i.test(error.message || '')) {
+      ({ error } = await supabase.auth.resetPasswordForEmail(normalizedEmail));
+    }
 
     if (error) {
-      const msg = error.message || 'Could not send OTP';
+      const msg = error.message || 'Could not send reset link';
+      console.error('Reset password email failed:', msg);
 
       if (/rate limit|too many requests/i.test(msg)) {
         res.set('Retry-After', '60');
         return res.status(429).json({
           message:
-            'OTP service is temporarily rate-limited. Please wait 60 seconds and request OTP again.'
+            'Reset password email service is temporarily rate-limited. Please wait 60 seconds and try again.'
+        });
+      }
+
+      if (/redirect|redirect_to|not allowed|invalid/i.test(msg)) {
+        return res.status(400).json({
+          message:
+            'Reset link redirect URL is not allowed. Add http://localhost:5173/reset-password to Supabase Auth URL configuration.'
         });
       }
 

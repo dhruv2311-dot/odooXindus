@@ -6,6 +6,8 @@ import productRoutes from './routes/product.routes.js';
 import receiptRoutes from './routes/receipt.routes.js';
 import deliveryRoutes from './routes/delivery.routes.js';
 import stockRoutes from './routes/stock.routes.js';
+import warehouseRoutes from './routes/warehouse.routes.js';
+import locationRoutes from './routes/location.routes.js';
 
 dotenv.config();
 
@@ -18,6 +20,8 @@ app.use('/products', productRoutes);
 app.use('/receipts', receiptRoutes);
 app.use('/deliveries', deliveryRoutes);
 app.use('/stock', stockRoutes);
+app.use('/warehouses', warehouseRoutes);
+app.use('/locations', locationRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

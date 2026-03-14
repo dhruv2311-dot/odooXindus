@@ -1,24 +1,41 @@
 import { create } from 'zustand';
 
+const normalizeUserRole = (role, email = '') => {
+  if (role === 'Inventory Manager' || role === 'Warehouse Staff') {
+    return role;
+  }
+
+  if (String(email).toLowerCase().includes('dhruv')) {
+    return 'Inventory Manager';
+  }
+
+  return 'Warehouse Staff';
+};
+
+const enrichUser = (userData = {}) => {
+  const role = normalizeUserRole(userData.role, userData.email);
+  return {
+    ...userData,
+    role,
+  };
+};
+
 export const useAuthStore = create((set) => ({
   user: null,
   isAuthenticated: false,
   isAdmin: false,
   login: (userData, token) => {
     localStorage.setItem('token', token);
-    // Derived role logically. Temporary check for email containing 'dhruv' to ensure the creator has Admin privileges natively.
-    const isManager = userData.role === 'Inventory Manager' || userData.email?.includes('dhruv');
-    const enrichedUser = { ...userData, role: isManager ? 'Inventory Manager' : 'Warehouse Staff' };
+    const enrichedUser = enrichUser(userData);
     
-    set({ user: enrichedUser, isAuthenticated: true, isAdmin: isManager });
+    set({ user: enrichedUser, isAuthenticated: true, isAdmin: enrichedUser.role === 'Inventory Manager' });
   },
   logout: () => {
     localStorage.removeItem('token');
     set({ user: null, isAuthenticated: false, isAdmin: false });
   },
   setUser: (userData) => {
-    const isManager = userData.role === 'Inventory Manager' || userData.email?.includes('dhruv');
-    const enrichedUser = { ...userData, role: isManager ? 'Inventory Manager' : 'Warehouse Staff' };
-    set({ user: enrichedUser, isAuthenticated: true, isAdmin: isManager });
+    const enrichedUser = enrichUser(userData);
+    set({ user: enrichedUser, isAuthenticated: true, isAdmin: enrichedUser.role === 'Inventory Manager' });
   },
 }));

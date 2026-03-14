@@ -5,26 +5,29 @@ export default function Locations() {
   ];
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Locations</h2>
+    <div className="animate-in fade-in duration-500">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h2 className="text-2xl font-semibold text-white font-poppins tracking-tight">Internal Locations</h2>
+          <p className="text-gray-400 text-sm mt-1">Configure bin spaces and shelving routes</p>
+        </div>
       </div>
 
-      <div className="bg-card border border-slate-800 rounded-xl overflow-hidden">
+      <div className="theme-card p-0 !border-0 overflow-hidden">
         <table className="w-full text-sm text-left">
-          <thead className="bg-slate-900 border-b border-slate-800 text-slate-300">
+          <thead className="bg-[#141B3A] border-b border-white/5 uppercase text-xs">
             <tr>
-              <th className="px-6 py-4 font-semibold">Location Name</th>
-              <th className="px-6 py-4 font-semibold">Short Code</th>
-              <th className="px-6 py-4 font-semibold">Warehouse</th>
+              <th className="px-6 py-4 font-semibold text-gray-300">Location Name</th>
+              <th className="px-6 py-4 font-semibold text-gray-300">Short Code</th>
+              <th className="px-6 py-4 font-semibold text-gray-300">Parent Warehouse</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-white/5">
             {locations.map((l) => (
-              <tr key={l.id} className="border-b border-slate-800/50 hover:bg-slate-800/20 text-slate-300">
-                <td className="px-6 py-4">{l.name}</td>
-                <td className="px-6 py-4">{l.code}</td>
-                <td className="px-6 py-4">{l.warehouse}</td>
+              <tr key={l.id} className="hover:bg-[#232C63] transition-colors duration-150">
+                <td className="px-6 py-5 text-white">{l.name}</td>
+                <td className="px-6 py-5 text-gray-300">{l.code}</td>
+                <td className="px-6 py-5 text-gray-300">{l.warehouse}</td>
               </tr>
             ))}
           </tbody>

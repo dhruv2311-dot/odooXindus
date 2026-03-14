@@ -77,6 +77,7 @@ export default function Products() {
                   value={formData.name}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
                   className="theme-input w-full"
+                  placeholder="e.g. USB-C Cable 1m"
                 />
               </div>
               
@@ -89,6 +90,7 @@ export default function Products() {
                     value={formData.sku}
                     onChange={e => setFormData({ ...formData, sku: e.target.value })}
                     className="theme-input w-full uppercase"
+                    placeholder="e.g. USB-C-1M-001"
                   />
                 </div>
                 <div>
@@ -100,6 +102,7 @@ export default function Products() {
                     value={formData.price}
                     onChange={e => setFormData({ ...formData, price: e.target.value })}
                     className="theme-input w-full"
+                    placeholder="e.g. 249.99"
                   />
                 </div>
               </div>
@@ -113,6 +116,7 @@ export default function Products() {
                     value={formData.category}
                     onChange={e => setFormData({ ...formData, category: e.target.value })}
                     className="theme-input w-full"
+                    placeholder="e.g. Accessories"
                   />
                 </div>
                 <div>

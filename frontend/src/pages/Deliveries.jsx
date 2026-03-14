@@ -24,6 +24,19 @@ export default function Deliveries() {
     }
   });
 
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }) => deliveriesApi.updateStatus(id, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deliveries'] });
+      queryClient.invalidateQueries({ queryKey: ['stock'] });
+      queryClient.invalidateQueries({ queryKey: ['stock-moves'] });
+    }
+  });
+
+  const handleStatusChange = (id, status) => {
+    statusMutation.mutate({ id, status });
+  };
+
   const generateRef = () => `WH/OUT/${String(deliveries.length + 1).padStart(4, '0')}`;
 
   const handleSubmit = (e) => {
@@ -62,9 +75,44 @@ export default function Deliveries() {
       id: 'actions',
       header: 'Actions',
       cell: info => (
-        <Link to={`/deliveries/${info.row.original.id}`} className="p-2 text-accent hover:text-white transition-colors block w-fit">
-          <Eye className="w-5 h-5" />
-        </Link>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Link to={`/deliveries/${info.row.original.id}`} className="p-2 text-accent hover:text-white transition-colors block w-fit">
+            <Eye className="w-5 h-5" />
+          </Link>
+
+          {info.row.original.status === 'Draft' && (
+            <button
+              type="button"
+              onClick={() => handleStatusChange(info.row.original.id, 'Ready')}
+              disabled={statusMutation.isPending}
+              className="px-2 py-1 text-xs rounded-md border border-success/40 text-success hover:bg-success/10 transition-colors disabled:opacity-50"
+            >
+              Mark Ready
+            </button>
+          )}
+
+          {info.row.original.status === 'Ready' && (
+            <button
+              type="button"
+              onClick={() => handleStatusChange(info.row.original.id, 'Done')}
+              disabled={statusMutation.isPending}
+              className="px-2 py-1 text-xs rounded-md border border-accent/40 text-accent hover:bg-accent/10 transition-colors disabled:opacity-50"
+            >
+              Mark Done
+            </button>
+          )}
+
+          {(info.row.original.status === 'Draft' || info.row.original.status === 'Ready') && (
+            <button
+              type="button"
+              onClick={() => handleStatusChange(info.row.original.id, 'Canceled')}
+              disabled={statusMutation.isPending}
+              className="px-2 py-1 text-xs rounded-md border border-danger/40 text-danger hover:bg-danger/10 transition-colors disabled:opacity-50"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
       )
     }
   ];
@@ -110,6 +158,7 @@ export default function Deliveries() {
                     value={formData.customer}
                     onChange={e => setFormData({ ...formData, customer: e.target.value })}
                     className="theme-input w-full"
+                    placeholder="e.g. Acme Retail LLP"
                   />
                 </div>
                 <div>
@@ -120,6 +169,7 @@ export default function Deliveries() {
                     value={formData.date}
                     onChange={e => setFormData({ ...formData, date: e.target.value })}
                     className="theme-input w-full"
+                    placeholder="YYYY-MM-DD"
                   />
                 </div>
               </div>
@@ -149,6 +199,7 @@ export default function Deliveries() {
                       value={newItem.quantity}
                       onChange={e => setNewItem({ ...newItem, quantity: e.target.value })}
                       className="theme-input w-full text-sm py-2"
+                      placeholder="e.g. 8"
                     />
                   </div>
                   <button

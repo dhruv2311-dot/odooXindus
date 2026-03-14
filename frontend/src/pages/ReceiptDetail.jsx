@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { receiptsApi } from '../services/api';
 import StatusBadge from '../components/StatusBadge';
-import { ArrowLeft, Check, Printer } from 'lucide-react';
+import { ArrowLeft, Check, Printer, XCircle } from 'lucide-react';
 
 export default function ReceiptDetail() {
   const { id } = useParams();
@@ -14,11 +14,13 @@ export default function ReceiptDetail() {
     queryFn: () => receiptsApi.getById(id)
   });
 
-  const validateMutation = useMutation({
-    mutationFn: () => receiptsApi.validate(id),
+  const statusMutation = useMutation({
+    mutationFn: (status) => receiptsApi.updateStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['receipt', id] });
+      queryClient.invalidateQueries({ queryKey: ['receipts'] });
       queryClient.invalidateQueries({ queryKey: ['stock'] });
+      queryClient.invalidateQueries({ queryKey: ['stock-moves'] });
     }
   });
 
@@ -39,16 +41,43 @@ export default function ReceiptDetail() {
 
       <div className="theme-card">
         
-        {receipt.status === 'Draft' && (
+        {(receipt.status === 'Draft' || receipt.status === 'Ready') && (
           <div className="flex gap-4 mb-8 pb-8 border-b border-white/5">
+            {receipt.status === 'Draft' && (
+              <button
+                onClick={() => statusMutation.mutate('Ready')}
+                disabled={statusMutation.isPending}
+                className="btn-primary flex items-center gap-2"
+              >
+                <Check className="w-4 h-4" />
+                {statusMutation.isPending ? 'Updating...' : 'Mark Ready'}
+              </button>
+            )}
+
+            {receipt.status === 'Ready' && (
+              <button
+                onClick={() => statusMutation.mutate('Done')}
+                disabled={statusMutation.isPending}
+                className="btn-primary flex items-center gap-2"
+              >
+                <Check className="w-4 h-4" />
+                {statusMutation.isPending ? 'Validating...' : 'Mark Done'}
+              </button>
+            )}
+
             <button
-              onClick={() => validateMutation.mutate()}
-              disabled={validateMutation.isPending}
-              className="btn-primary flex items-center gap-2"
+              onClick={() => statusMutation.mutate('Canceled')}
+              disabled={statusMutation.isPending}
+              className="btn-secondary flex items-center gap-2 bg-secondary text-danger border border-danger/40 hover:bg-danger/10"
             >
-              <Check className="w-4 h-4" />
-              {validateMutation.isPending ? 'Validating...' : 'Validate Operations'}
+              <XCircle className="w-4 h-4" />
+              Cancel
             </button>
+          </div>
+        )}
+
+        {receipt.status === 'Done' && (
+          <div className="flex gap-4 mb-8 pb-8 border-b border-white/5">
             <button
               onClick={() => window.print()}
               className="btn-secondary flex items-center gap-2 bg-secondary text-gray-300 border border-white/10 hover:bg-white/5"

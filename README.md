@@ -213,6 +213,10 @@ cd frontend
 npm run build
 ```
 
+## Deployment
+
+For complete production deployment steps (frontend + backend), see DEPLOYMENT.md at the repository root.
+
 ## Baseline Supabase Schema
 
 ```sql
